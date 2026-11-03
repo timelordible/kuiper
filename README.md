@@ -5,6 +5,8 @@ renderer that pans each input straight to the speakers with VBAP. There is no HO
 encoder, no decoder and no connect script. Design outline:
 https://claude.ai/artifact/T7QZ7ySNATZ53F5vYYJMLJ
 
+Repository (private): https://github.com/timelordible/kuiper
+
 Status: prototype skeleton (phase 2 in the outline). It renders and takes OSC.
 The web server, meters, spread, distance model and DBAP are not built yet.
 
