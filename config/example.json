@@ -1,0 +1,14 @@
+{
+  "layout": "../layouts/example-dome-12.json",
+  "inputs": 32,
+  "audio": {
+    "type": "JACK",
+    "inputDevice": "",
+    "outputDevice": "",
+    "sampleRate": 48000,
+    "bufferSize": 256
+  },
+  "osc": { "port": 6666 },
+  "smoothingMs": 20,
+  "masterGainDb": -2.5
+}

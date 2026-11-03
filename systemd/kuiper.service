@@ -1,0 +1,13 @@
+[Unit]
+Description=kuiper (VBAP spatial renderer)
+After=pipewire.service pipewire-pulse.service wireplumber.service
+Wants=pipewire.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/pw-jack %h/.local/bin/kuiper --config %h/.config/kuiper/config.json
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
