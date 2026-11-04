@@ -32,7 +32,7 @@ Needs CMake 3.22+ and a C++17 compiler. JUCE 8.0.4 is downloaded at configure ti
 Ubuntu (Pollux):
 
 ```bash
-sudo apt install build-essential cmake git libasound2-dev libjack-jackd2-dev
+sudo apt install build-essential cmake git pkg-config libasound2-dev libjack-jackd2-dev libfreetype-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev
 ```
 
 ```bash
