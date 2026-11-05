@@ -4,7 +4,7 @@
   "audio": {
     "type": "JACK",
     "inputDevice": "SuperCollider",
-    "outputDevice": "",
+    "outputDevice": "KT-USB",
     "sampleRate": 48000,
     "bufferSize": 256
   },
