@@ -35,6 +35,19 @@ namespace
         return layout;
     }
 
+    // Couch 204: 8 at ear height, 4 above, 1 overhead, an imaginary speaker straight down
+    std::vector<Speaker> couchLayout()
+    {
+        std::vector<Speaker> layout {
+            { 22.495f, 0.0f, false, 0 }, { -22.495f, 0.0f, false, 1 }, { -68.014f, 0.0f, false, 2 },
+            { -111.986f, 0.0f, false, 3 }, { -157.505f, 0.0f, false, 4 }, { 157.505f, 0.0f, false, 5 },
+            { 111.986f, 0.0f, false, 6 }, { 68.014f, 0.0f, false, 7 }, { 0.0f, 19.188f, false, 8 },
+            { -90.0f, 27.507f, false, 9 }, { 180.0f, 19.188f, false, 10 }, { 90.0f, 27.507f, false, 11 },
+            { 0.0f, 90.0f, false, 12 }, { 0.0f, -90.0f, true, -1 }
+        };
+        return layout;
+    }
+
     std::vector<Speaker> ringLayout()
     {
         std::vector<Speaker> layout;
@@ -134,13 +147,18 @@ int main()
 {
     const auto dome = domeLayout();
     const auto ring = ringLayout();
+    const auto couch = couchLayout();
 
     check (prepared (dome).numGroups() > 0, "dome: no triangles");
     check (prepared (ring).is2D(), "ring: should use 2D VBAP");
 
     sourceOnSpeakerPlaysOnlyThere (dome, "dome");
     sourceOnSpeakerPlaysOnlyThere (ring, "ring");
+    sourceOnSpeakerPlaysOnlyThere (couch, "couch");
     powerIsConstant (dome, "dome");
+    powerIsConstant (couch, "couch");
+    sweepHasNoJumps (couch, 0.0f, "couch at 0 deg");
+    sweepHasNoJumps (couch, 20.0f, "couch at 20 deg");
     sweepHasNoJumps (dome, 0.0f, "dome at 0 deg");
     sweepHasNoJumps (dome, 20.0f, "dome at 20 deg");
     sweepHasNoJumps (ring, 0.0f, "ring");

@@ -106,6 +106,11 @@ Indices are 0-based. Positive azimuth is to the left, as in ATK and IEM.
 
 ## Notes
 
+- JACK: JUCE treats other JACK clients as devices. `outputDevice` is the client that holds
+  the speaker ports, and JUCE connects Kuiper's outputs to it in port order. `inputDevice`
+  is the client Kuiper takes audio from, and Kuiper only gets as many `in_N` ports as that
+  client has output ports. An empty name picks the first client. A fixed set of 32 inputs
+  that any client can connect to needs a small direct JACK backend, which is the next step.
 - VBAP is computed directly per audio block (a few hundred multiply-adds per source),
   so there is no gain table. SAF's `saf_vbap` can replace `src/core/Vbap.cpp` later
   behind the same interface. It wasn't used yet because SAF needs a BLAS/LAPACK library to build.
