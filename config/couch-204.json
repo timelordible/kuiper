@@ -1,0 +1,14 @@
+{
+  "layout": "../layouts/couch-204.json",
+  "inputs": 32,
+  "audio": {
+    "type": "JACK",
+    "inputDevice": "SuperCollider",
+    "outputDevice": "KT-USB",
+    "sampleRate": 48000,
+    "bufferSize": 256
+  },
+  "osc": { "port": 6666 },
+  "smoothingMs": 20,
+  "masterGainDb": -2.5
+}
