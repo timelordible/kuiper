@@ -61,4 +61,23 @@ if(KUIPER_BUILD_APP)
         PUBLIC
             juce::juce_recommended_config_flags
             juce::juce_recommended_warning_flags)
+
+    # Renderer control-frame tests: drive Renderer::process with fake buffers, no audio device
+    juce_add_console_app(renderer_tests PRODUCT_NAME "renderer_tests")
+    target_sources(renderer_tests PRIVATE tests/renderer_tests.cpp src/app/Renderer.cpp)
+    target_include_directories(renderer_tests PRIVATE src/app)
+    target_compile_definitions(renderer_tests PRIVATE
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_STANDALONE_APPLICATION=1)
+    target_link_libraries(renderer_tests
+        PRIVATE
+            kuiper_core
+            juce::juce_core
+            juce::juce_events
+            juce::juce_audio_basics
+            juce::juce_audio_devices
+        PUBLIC
+            juce::juce_recommended_config_flags)
+    add_test(NAME renderer_tests COMMAND renderer_tests)
 endif()

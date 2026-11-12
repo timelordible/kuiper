@@ -17,9 +17,12 @@ src/core/Vbap.*         VBAP triangulation + gains, plain C++ (no JUCE)
 src/app/Main.cpp        headless app: config, audio device, message loop, SIGINT/SIGTERM
 src/app/Config.*        JSON config (one file per room)
 src/app/Layout.*        IEM .json layout loader
-src/app/Renderer.*      audio callback: smoothing, VBAP gains, gain ramps, output mapping
+src/app/Renderer.*      audio callback: control queue, 64-sample control frames, smoothing,
+                        VBAP gains, gain ramps, output mapping
 src/app/OscServer.*     OSC control (litespat messages + new ones)
 tests/vbap_tests.cpp    gain checks from the outline's testing section
+tests/renderer_tests.cpp control-frame timing checks, run without an audio device
+tests/speaker-walk.scd  room test: noise burst on each speaker in turn
 config/example.json     example config
 layouts/                example layout (replace with the real room layouts from IEM)
 systemd/                user service for the Ubuntu machine
@@ -111,7 +114,11 @@ Indices are 0-based. Positive azimuth is to the left, as in ATK and IEM.
   is the client Kuiper takes audio from, and Kuiper only gets as many `in_N` ports as that
   client has output ports. An empty name picks the first client. A fixed set of 32 inputs
   that any client can connect to needs a small direct JACK backend, which is the next step.
-- VBAP is computed directly per audio block (a few hundred multiply-adds per source),
+- Control runs in 64-sample frames, whatever the buffer size. OSC messages go through a
+  lock-free queue stamped with their arrival time and are replayed one buffer later at the
+  matching frame, so fast updates keep their spacing. Each frame smooths the position,
+  recomputes VBAP and ramps the gains over those 64 samples.
+- VBAP is computed directly per control frame (a few hundred multiply-adds per source),
   so there is no gain table. SAF's `saf_vbap` can replace `src/core/Vbap.cpp` later
   behind the same interface. It wasn't used yet because SAF needs a BLAS/LAPACK library to build.
 - Windows: on the test laptop, opening WASAPI with the built-in microphone as input hung

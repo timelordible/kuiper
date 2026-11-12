@@ -23,10 +23,11 @@ public:
 
 private:
     void oscMessageReceived (const juce::OSCMessage& message) override;
-    void pushDirection (int index);
+    void post (const ControlMessage& message);
+    void postDirection (int index);
 
     // Spherical coordinates per source, so separate azim and elev messages can be combined.
-    // Only touched on the OSC receiver thread.
+    // Only touched on the OSC receiver thread, which is the renderer queue's one producer.
     struct Aed
     {
         float azimuth = 0.0f, elevation = 0.0f, distance = 1.5f;
@@ -35,4 +36,5 @@ private:
     Renderer& renderer;
     juce::OSCReceiver receiver { "kuiper OSC" };
     std::vector<Aed> positions;
+    unsigned long droppedMessages = 0;
 };

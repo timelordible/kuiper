@@ -36,14 +36,20 @@ bool OscServer::start (int port)
     return true;
 }
 
-void OscServer::pushDirection (int index)
+void OscServer::post (const ControlMessage& message)
+{
+    if (renderer.post (message, juce::Time::getMillisecondCounterHiRes()))
+        return;
+
+    // The audio thread isn't keeping up; report the first drop and then every 1000th
+    if (droppedMessages++ % 1000 == 0)
+        std::cerr << "Control queue full, dropped " << droppedMessages << " message(s)" << std::endl;
+}
+
+void OscServer::postDirection (int index)
 {
     const auto& p = positions[(size_t) index];
-    const auto d = kuiper::directionFromAzEl (p.azimuth, p.elevation);
-    auto& source = renderer.source (index);
-    source.x.store (d.x);
-    source.y.store (d.y);
-    source.z.store (d.z);
+    post ({ ControlMessage::Type::direction, index, kuiper::directionFromAzEl (p.azimuth, p.elevation) });
 }
 
 void OscServer::oscMessageReceived (const juce::OSCMessage& m)
@@ -54,7 +60,7 @@ void OscServer::oscMessageReceived (const juce::OSCMessage& m)
     {
         float db;
         if (number (m, 0, db))
-            renderer.setMasterGain (juce::Decibels::decibelsToGain (db, -120.0f));
+            post ({ ControlMessage::Type::masterGain, 0, {}, juce::Decibels::decibelsToGain (db, -120.0f) });
         return;
     }
 
@@ -73,18 +79,17 @@ void OscServer::oscMessageReceived (const juce::OSCMessage& m)
     }
 
     auto& pos = positions[(size_t) index];
-    auto& source = renderer.source (index);
     float a, b, c;
 
     if (address == "/source/azim" && number (m, 1, a))
     {
         pos.azimuth = a;
-        pushDirection (index);
+        postDirection (index);
     }
     else if (address == "/source/elev" && number (m, 1, a))
     {
         pos.elevation = a;
-        pushDirection (index);
+        postDirection (index);
     }
     else if (address == "/source/dist" && number (m, 1, a))
     {
@@ -93,7 +98,7 @@ void OscServer::oscMessageReceived (const juce::OSCMessage& m)
     else if (address == "/source/aed" && number (m, 1, a) && number (m, 2, b) && number (m, 3, c))
     {
         pos = { a, b, c };
-        pushDirection (index);
+        postDirection (index);
     }
     else if (address == "/source/xyz" && number (m, 1, a) && number (m, 2, b) && number (m, 3, c))
     {
@@ -103,17 +108,15 @@ void OscServer::oscMessageReceived (const juce::OSCMessage& m)
         {
             pos.azimuth = std::atan2 (b, a);
             pos.elevation = std::asin (c / pos.distance);
-            source.x.store (a);
-            source.y.store (b);
-            source.z.store (c);
+            post ({ ControlMessage::Type::direction, index, { a, b, c } });
         }
     }
     else if (address == "/source/gain" && number (m, 1, a))
     {
-        source.gain.store (juce::Decibels::decibelsToGain (a, -120.0f));
+        post ({ ControlMessage::Type::gain, index, {}, juce::Decibels::decibelsToGain (a, -120.0f) });
     }
     else if (address == "/source/mute" && number (m, 1, a))
     {
-        source.mute.store (a != 0.0f);
+        post ({ ControlMessage::Type::mute, index, {}, a != 0.0f ? 1.0f : 0.0f });
     }
 }
